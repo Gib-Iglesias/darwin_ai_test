@@ -1,0 +1,35 @@
+{
+  "name": "connector-service",
+  "version": "1.0.0",
+  "description": "Telegram ↔ Bot Service for Darwin AI Test",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest --forceExit",
+    "test:coverage": "node --experimental-vm-modules node_modules/.bin/jest --coverage --forceExit"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "node-telegram-bot-api": "^0.66.0",
+    "jsonwebtoken": "^9.0.2",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-fetch-mock": "^3.0.3"
+  },
+  "jest": {
+    "extensionsToTreatAsEsm": [
+      ".js"
+    ],
+    "transform": {},
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ]
+  }
+}
