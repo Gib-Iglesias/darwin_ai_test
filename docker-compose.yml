@@ -1,0 +1,49 @@
+services:
+
+  # ── PostgreSQL ──────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: darwin
+      POSTGRES_PASSWORD: darwin
+      POSTGRES_DB: darwin_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U darwin -d darwin_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── Bot Service (Python / FastAPI) ──────────────────────────────────────────
+  bot-service:
+    build:
+      context: ./bot-service
+      target: runtime
+    restart: unless-stopped
+    env_file: ./bot-service/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Override the DB URL to point at the Docker network alias
+      DATABASE_URL: postgresql+asyncpg://darwin:darwin@postgres:5432/darwin_db
+
+  # ── Connector Service (Node.js) ─────────────────────────────────────────────
+  connector-service:
+    build:
+      context: ./connector-service
+    restart: unless-stopped
+    env_file: ./connector-service/.env
+    depends_on:
+      - bot-service
+    environment:
+      BOT_SERVICE_URL: http://bot-service:8000
+
+volumes:
+  postgres_data:
